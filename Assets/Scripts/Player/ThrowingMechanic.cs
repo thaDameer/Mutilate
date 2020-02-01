@@ -56,10 +56,10 @@ public class ThrowingMechanic : MonoBehaviour
             //axeClone.gravityScale = 0;
             if(rx < 0)
             {
-                axeClone.AddTorque(-50F);
+               // axeClone.AddTorque(-50F);
             } else if(rx > 0)
             {
-                axeClone.AddTorque(50f);
+               // axeClone.AddTorque(50f);
             }
 
             axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);
