@@ -1,0 +1,97 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using DG.Tweening;
+
+public class ArmScript : MonoBehaviour
+{
+    float countdownToLayerswitch = .3f;
+    Rigidbody2D myRb;
+    [HideInInspector]
+    public bool isReturning;
+    private Transform player;
+    private float returnSpeed = 10f;
+    ThrowingMechanic throwingMechanic;
+    public bool canCallBackArm = false;
+    public bool armIsReturning = false;
+
+
+
+    private void Awake()
+    {
+        myRb = GetComponent<Rigidbody2D>();
+        player = GameObject.Find("Player").transform;
+    }
+    private void Update()
+    {
+        countdownToLayerswitch -= Time.deltaTime;
+        if(countdownToLayerswitch <= 0)
+        {
+            gameObject.layer = LayerMask.NameToLayer("Axe");
+        }
+        if (canCallBackArm)
+        {
+            if (armIsReturning)
+            {
+                RecallAxe(15f, 1f);
+            }
+            
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Wall"))
+        {
+
+            var colPoint = collision.contacts[0].point;
+            gameObject.layer = LayerMask.NameToLayer("Axe");
+            HorizontalRotation(colPoint);
+            myRb.bodyType = RigidbodyType2D.Static;
+        }
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            var sprite = collision.gameObject.GetComponentInChildren<SpriteRenderer>();
+            collision.gameObject.GetComponent<HealthScript>().TakeDamage(1,sprite);
+            armIsReturning= true;
+        }
+    }
+
+    private void HorizontalRotation(Vector2 collisionObj)
+    {
+        //NEED LOTS OF POLISH!
+        Vector3 leftRot = new Vector3(transform.rotation.x, transform.rotation.y, 90f);
+        Vector3 rightRot = new Vector3(transform.rotation.x, transform.rotation.y, -90f);
+        Vector3 upRot = new Vector3(transform.rotation.x, transform.rotation.y, 0);
+
+        
+        if (collisionObj.x > transform.position.x)
+        {
+            transform.DORotate(rightRot, 0.1f, RotateMode.Fast);
+            //gameObject.transform.rotation = Quaternion.Lerp(gameObject.transform.localRotation, rightRot, 0.5f * Time.deltaTime);
+        } else if(collisionObj.x < transform.position.x)
+        {
+            transform.DORotate(leftRot, 0.1f, RotateMode.Fast);
+            //gameObject.transform.rotation = Quaternion.Lerp(gameObject.transform.localRotation, leftRot, 0.5f * Time.deltaTime);
+        } 
+    }
+    public void RecallAxe(float axeSpeed, float maxDist)
+    {
+        myRb.bodyType = RigidbodyType2D.Dynamic;
+        myRb.gravityScale = 0;
+        myRb.velocity = Vector3.zero;
+        Physics2D.IgnoreLayerCollision(11, 13);
+
+        myRb.transform.position = Vector3.MoveTowards(myRb.transform.position, player.transform.position, axeSpeed * Time.deltaTime);
+        var distToPlayer = Vector3.Distance(myRb.transform.position, player.transform.position);
+        //Debug.Break();
+        if (distToPlayer < maxDist)
+        {
+            
+            isReturning = false;
+            canCallBackArm = false;
+            player.GetComponentInChildren<ThrowingMechanic>().projectileAmount = 1;
+            Destroy(gameObject);
+        }
+    }
+}
