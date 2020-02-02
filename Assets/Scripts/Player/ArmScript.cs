@@ -39,23 +39,6 @@ public class ArmScript : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.layer == LayerMask.NameToLayer("Wall"))
-        {
-
-            var colPoint = collision.contacts[0].point;
-            gameObject.layer = LayerMask.NameToLayer("Axe");
-            HorizontalRotation(colPoint);
-            myRb.bodyType = RigidbodyType2D.Static;
-        }
-        if(collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))
-        {
-            var sprite = collision.gameObject.GetComponentInChildren<SpriteRenderer>();
-            collision.gameObject.GetComponent<HealthScript>().TakeDamage(1,sprite);
-            armIsReturning= true;
-        }
-    }
 
     private void HorizontalRotation(Vector2 collisionObj)
     {
@@ -82,7 +65,7 @@ public class ArmScript : MonoBehaviour
         myRb.velocity = Vector3.zero;
         Physics2D.IgnoreLayerCollision(11, 13);
 
-        myRb.transform.position = Vector3.MoveTowards(myRb.transform.position, player.transform.position, axeSpeed * Time.deltaTime);
+        myRb.transform.position = Vector3.MoveTowards(myRb.transform.position, player.transform.position, (axeSpeed*1.5f) * Time.deltaTime);
         var distToPlayer = Vector3.Distance(myRb.transform.position, player.transform.position);
         //Debug.Break();
         if (distToPlayer < maxDist)

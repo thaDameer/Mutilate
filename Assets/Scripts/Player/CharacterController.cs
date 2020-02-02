@@ -21,14 +21,19 @@ public class CharacterController : MonoBehaviour
     //JUMPING
     [Header ("Jumping Variables")]
     public float jumpTime = 1f;
+    public int jumpCount = 0;
     Vector2 jumpVector;
     public float jumpForce = 8;
     public LayerMask whatIsGround;
     public float checkRadius = 1f;
     public bool isGrounded;
     public bool isJumping;
+    public float gravForce = 8f;
+    public Material bodyDepleted;
+    public Renderer body;
+    Material standardMat;
 
-    public Transform feetPos;
+    public Transform footPos;
 
     public Transform characterModel;
 
@@ -44,6 +49,10 @@ public class CharacterController : MonoBehaviour
         characterStates = CharacterStates.Idle;
     }
 
+    private void Start() {
+        standardMat = body.material;
+    }
+
     void Update()
     {
         Debug.Log(IsGrounded());
@@ -52,9 +61,9 @@ public class CharacterController : MonoBehaviour
         RotateCharacter();
         moveInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
-        isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
+        
 
-        if(Input.GetButtonDown("Fire1"))
+        if(Input.GetButtonDown("Fire1") && jumpCount < 1)
         {
           StopCoroutine(Jump());
           StartCoroutine(Jump());
@@ -83,6 +92,11 @@ public class CharacterController : MonoBehaviour
                 if(moveInput == 0)
                 {
                     characterStates = CharacterStates.Idle;
+                }
+                 if(Input.GetButtonDown("Fire1") && jumpCount < 1)
+                {
+                StopCoroutine(Jump());
+                StartCoroutine(Jump());
                 }
                 break;
             case CharacterStates.Jumping:
@@ -116,17 +130,23 @@ public class CharacterController : MonoBehaviour
         if (moveInput < 0)
         {
             var sprite = animator.GetComponent<SpriteRenderer>();
-            characterModel.localRotation = Quaternion.Euler(0, -90, 0);
+            characterModel.localRotation = Quaternion.Euler(0, 180, 0);
         }
         else if (moveInput > 0)
         {
-            characterModel.localRotation = Quaternion.Euler(0, 90, 0);
+            characterModel.localRotation = Quaternion.Euler(0, 0, 0);
         }
     }
 
     IEnumerator Jump()
     {
-        Debug.Log("JUMP");
+        jumpCount++;
+        if(jumpCount > 0 && !IsGrounded())
+        {
+            PartyManager.partyInstance.InstantiateSmoke(footPos.position);
+            body.material = bodyDepleted;
+        }
+        
         myRb.velocity = Vector2.zero;
         float timer = 0; 
         var downForce = new Vector2(0, -15);
@@ -145,22 +165,28 @@ public class CharacterController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         
-        myRb.gravityScale = 5;
+        myRb.gravityScale = gravForce;
         animator.SetBool("isJumping", false);
+        
         isJumping = false;
     }
 
     public bool IsGrounded()
     {
-        RaycastHit hit;
-
-        if(Physics.Raycast(transform.position, Vector2.down,2f, whatIsGround))
-        {
-            return true;
-        }else
-        {
-            return false;
-        }
+       if(Physics2D.OverlapCircle(footPos.position, checkRadius, whatIsGround))
+       {
+           jumpCount = 0;
+           isGrounded = true;
+           body.material = standardMat;
+           return true;
+       }
+       else
+       {
+           isGrounded = false;
+           return false;
+       } 
+           
+           
     }
  
 }

@@ -51,15 +51,15 @@ public class ThrowingMechanic : MonoBehaviour
         {
             projectileAmount -= 1;   
             // axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.Euler(0,0, Random.Range(0,360f)));
-            axeClone = Instantiate(axe, axeSpawnPoint.position, transform.rotation);
+            axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.identity);
             axeClone.GetComponent<ArmScript>().canCallBackArm = true;
             //axeClone.gravityScale = 0;
             if(rx < 0)
             {
-               // axeClone.AddTorque(-50F);
+                axeClone.AddTorque(-50F);
             } else if(rx > 0)
             {
-               // axeClone.AddTorque(50f);
+                axeClone.AddTorque(50f);
             }
 
             axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);
