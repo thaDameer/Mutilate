@@ -14,6 +14,19 @@ private void Awake() {
     {
         var smokeClone = Instantiate(jumpSmoke,pos, Quaternion.Euler(-90,0,0));
         smokeClone.Emit(60);
-        Destroy(smokeClone, 2f);
+        StartCoroutine(DestroyParticle(2f,smokeClone.gameObject));
     }
+
+    public IEnumerator DestroyParticle(float time, GameObject objToDestroy)
+    {
+        float duration = time;
+        float elapsed = 0;
+        while (duration > elapsed)
+        {
+            elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
+            yield return new WaitForEndOfFrame();
+        }
+        DestroyImmediate(objToDestroy);
+    }
+
 }

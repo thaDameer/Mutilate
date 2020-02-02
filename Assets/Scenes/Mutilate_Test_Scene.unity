@@ -1090,6 +1090,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: JumpSmoke
       objectReference: {fileID: 0}
+    - target: {fileID: 696314410612823601, guid: 3fd2a84ca6cf4014586fc9367d7fc7ec,
+        type: 3}
+      propertyPath: InitialModule.gravityModifier.scalar
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1058832463377121325, guid: 3fd2a84ca6cf4014586fc9367d7fc7ec,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -156,11 +156,12 @@ public class CharacterController : MonoBehaviour
             myRb.gravityScale = 1;
             float jumpPercent = timer/ jumpTime;
             Vector2 thisJumpVector = Vector2.Lerp(jumpVector, Vector2.zero,jumpPercent);
-            float thisForce = Mathf.Lerp(jumpForce, 0, timer);
+            float thisForce = Mathf.Lerp(jumpForce, 0, jumpPercent);
            // thisJumpVector.x = myRb.velocity.x;
            myRb.AddForce(Vector2.up * thisForce, ForceMode2D.Force);
             
-            myRb.velocity = thisJumpVector;
+            //myRb.velocity = thisJumpVector;
+            myRb.velocity = new Vector2(myRb.velocity.x, thisForce);
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
