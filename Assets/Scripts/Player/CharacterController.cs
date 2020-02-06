@@ -61,7 +61,10 @@ public class CharacterController : MonoBehaviour
         RotateCharacter();
         moveInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
-        
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            StartCoroutine(CameraScript.instance.CameraShake(0.5f,0.5f));
+        }
 
         if(Input.GetButtonDown("Fire1") && jumpCount < 1)
         {

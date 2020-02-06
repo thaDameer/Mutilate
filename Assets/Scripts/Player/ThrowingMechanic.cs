@@ -35,10 +35,12 @@ public class ThrowingMechanic : MonoBehaviour
         if (!LeftTrigger())
         {
             armObj.SetActive(false);
+           
         }
         else if (LeftTrigger())
         {
             armObj.SetActive(true);
+           
         }
         if (axeClone != null && axeClone.GetComponent<ArmScript>().canCallBackArm)
         {
