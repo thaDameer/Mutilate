@@ -13,6 +13,7 @@ public class ThrowingMechanic : ArmHandler
     public ArmState armState;
     Vector2 aimDirection;
     public Input fireButton;
+    public bool armIsDetactivated;
     private bool canShoot;
     [Header("Shooting Settings")]
     public float minSpeed = 15;
@@ -25,16 +26,18 @@ public class ThrowingMechanic : ArmHandler
     public ArmScript armClone;
     public int projectileAmount = 1;
     float scale;
+    public bool isActive;
 
     
    
     private void Update()
     {
         Debug.Log(haveRightArm);
+        Debug.Log(haveLeftArm);
         switch (armState)
         {
             case ArmState.ArmAttached:
-
+               
                 aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
                 float rx = Input.GetAxis("AimHorizontal");
                 float ry = Input.GetAxis("AimVertical");
@@ -62,6 +65,7 @@ public class ThrowingMechanic : ArmHandler
                 {
                 StartCoroutine(ChargedShot(minSpeed,maxSpeed));
                 } 
+                
             break;
 
             case ArmState.ArmDetached:
@@ -73,23 +77,20 @@ public class ThrowingMechanic : ArmHandler
                 }
                 if(armClone == null)
                 {
-                    base.ToggleArm("rightArm", true);
+                    base.ToggleArm(whatArm.ToString(), true);
                     projectileAmount = 1;
                     armState = ArmState.ArmAttached;
                 }
 
             break;
-
-
         }
-        
     }
 
     IEnumerator ChargedShot(float startForce, float endForce)
     {
         
         float elapsed = 0;
-        float duration = 2f;
+        float duration = 1.5f;
         Vector3 scaleVector;
         
         while(elapsed < duration && Input.GetButton("Fire2"))
@@ -101,7 +102,7 @@ public class ThrowingMechanic : ArmHandler
             elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
-        base.ToggleArm("rightArm", false);
+        base.ToggleArm(whatArm.ToString(), false);
         aimingArm.localScale = Vector3.one;
         projectileAmount -= 1;    
         armClone = Instantiate((ArmScript)armToInstantiate, transform.position, transform.rotation);

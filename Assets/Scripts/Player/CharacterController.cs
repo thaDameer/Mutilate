@@ -19,6 +19,7 @@ public class CharacterController : MonoBehaviour
     private float verticalInput;
     //JUMPING
     [Header ("Jumping Variables")]
+    public int maxJump = 2;
     public float jumpTime = 1f;
     public int jumpCount = 0;
     Vector2 jumpVector;
@@ -66,10 +67,17 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
+        isGrounded = Physics2D.OverlapCircle(footPos.position, checkRadius, whatIsGround);
         jumpVector.y = jumpForce;
         RotateCharacter();
         moveInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
+        if(isGrounded)
+        {
+            jumpCount=0;
+            body.material = standardMat;
+            moveSpeed = 13f;
+        }
 
         if(Input.GetButtonDown("Fire1") && jumpCount < 1)
         {
@@ -80,7 +88,6 @@ public class CharacterController : MonoBehaviour
         {
             case CharacterStates.Idle:
                 //ANIMATIONS
-
                 animator.SetBool("isIdle", true);
                 animator.SetBool("isRunning", false);
 
@@ -89,8 +96,12 @@ public class CharacterController : MonoBehaviour
                 {
                     characterStates = CharacterStates.Running;
                 }
+                if(Input.GetButtonDown("Fire1") && jumpCount < maxJump )
+                {
+                StopCoroutine(Jump());
+                StartCoroutine(Jump());
+                }
 
-                
                 break;
             case CharacterStates.Running:
                 //ANIMATIONS
@@ -101,7 +112,8 @@ public class CharacterController : MonoBehaviour
                 {
                     characterStates = CharacterStates.Idle;
                 }
-                 if(Input.GetButtonDown("Fire1") && jumpCount < 1)
+
+                if(Input.GetButtonDown("Fire1") && jumpCount < maxJump )
                 {
                 StopCoroutine(Jump());
                 StartCoroutine(Jump());
@@ -111,8 +123,6 @@ public class CharacterController : MonoBehaviour
               
                 break;
         }
-
-
     }
 
     private void FixedUpdate()
@@ -130,11 +140,7 @@ public class CharacterController : MonoBehaviour
                  //myRb.velocity = new Vector2(moveInput * MovementSpeed(), myRb.velocity.y);
                 break;
         }
-        
-        
     }
-
-
     void RotateCharacter()
     {
         if (moveInput < 0)
@@ -152,7 +158,7 @@ public class CharacterController : MonoBehaviour
     {
         characterStates = CharacterStates.Jumping;
         jumpCount++;
-        if(jumpCount > 0 && !IsGrounded())
+        if(jumpCount == maxJump)
         {
             PartyManager.partyInstance.InstantiateSmoke(footPos.position);
             body.material = bodyDepleted;
@@ -173,7 +179,7 @@ public class CharacterController : MonoBehaviour
             myRb.AddForce(Vector2.up * thisForce, ForceMode2D.Force);
             
             //myRb.velocity = thisJumpVector;
-            myRb.velocity = new Vector2(myRb.velocity.x, thisForce);
+            myRb.velocity = Vector2.up * thisForce;
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
@@ -181,24 +187,7 @@ public class CharacterController : MonoBehaviour
         myRb.gravityScale = gravForce;
         animator.SetBool("isJumping", false);
         isJumping = false;
+       
         characterStates = CharacterStates.Running;
     }
-   
-
-    public bool IsGrounded()
-    {
-       if(Physics2D.OverlapCircle(footPos.position, checkRadius, whatIsGround))
-       {
-           jumpCount = 0;
-           isGrounded = true;
-           body.material = standardMat;
-           return true;
-       }
-       else
-       {
-           isGrounded = false;
-           return false;
-       } 
-    }
- 
 }

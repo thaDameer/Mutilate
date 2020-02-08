@@ -5,6 +5,12 @@ using DG.Tweening;
 
 public class ArmScript : MonoBehaviour
 {
+    public enum ArmBehaviour
+    {
+        recall,
+        pickup
+    }
+    public ArmBehaviour armBehaviour;
     float countdownToLayerswitch = .3f;
     [HideInInspector]
     public Rigidbody2D myRb;
@@ -14,6 +20,7 @@ public class ArmScript : MonoBehaviour
     private Transform player;
     private float returnSpeed = 10f;
     ThrowingMechanic throwingMechanic;
+    public BoxCollider2D triggerCol;
     public bool canCallBackArm = false;
     public bool armIsReturning = false;
 
@@ -24,11 +31,21 @@ public class ArmScript : MonoBehaviour
         myRb = GetComponent<Rigidbody2D>();
         player = GameObject.Find("Player").transform;
     }
+    private void OnEnable() 
+    {
+        if(armBehaviour == ArmBehaviour.pickup)
+        {
+           // TriggerDelay(1f);
+        }    
+    }
     private void Start() {
         armStartRot = gameObject.transform.rotation;
+        StartCoroutine(TriggerDelay(1f));
     }
     private void Update()
     {
+        if(armBehaviour == ArmBehaviour.recall)
+        {
         countdownToLayerswitch -= Time.deltaTime;
         if(countdownToLayerswitch <= 0)
         {
@@ -42,19 +59,25 @@ public class ArmScript : MonoBehaviour
             }
             
         }
+        if(armBehaviour == ArmBehaviour.pickup)
+        {
+            triggerCol.gameObject.SetActive(true);
+        }
+        }
     }
     
-    IEnumerator DelayRigidBody(float time)
+    IEnumerator TriggerDelay(float time)
     {
+
         float elapsed = 0;
         float duration = time;
         while(elapsed < duration)
         {
-
             elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
-        myRb.bodyType = RigidbodyType2D.Dynamic;
+        Debug.Log(triggerCol.name);
+        triggerCol.isTrigger = true;
     }
 
 
@@ -96,17 +119,15 @@ public class ArmScript : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    public void TogglePhysics(bool isKinematic)
+    private void OnTriggerEnter2D(Collider2D other) 
     {
-        if(isKinematic)
+        Debug.Log("HIT");
+        if(other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            myRb.bodyType = RigidbodyType2D.Kinematic;
-            myRb.simulated = false;
-        }
-        else if(!isKinematic)
-        {
-            myRb.bodyType = RigidbodyType2D.Dynamic;
-            myRb.simulated = true;
-        }
+            isReturning = false;
+            canCallBackArm = false;
+            Destroy(gameObject);
+        }        
     }
+
 }
