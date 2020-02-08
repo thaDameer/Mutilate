@@ -66,8 +66,6 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(IsGrounded());
-        //TEST
         jumpVector.y = jumpForce;
         RotateCharacter();
         moveInput = Input.GetAxisRaw("Horizontal");

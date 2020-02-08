@@ -10,12 +10,11 @@ public class ShaderOnHitTest : MonoBehaviour
 
    private void Start() {
        shader.SetFloat("dissolveAmount", 1);
-       Debug.Log(shader.name);
    }
 
     private void OnCollisionEnter2D(Collision2D other) 
     {
-        StartCoroutine(CameraScript.instance.CameraShake(0.5f, 0.5f));
+//        StartCoroutine(CameraScript.instance.CameraShake(0.5f, 0.5f));
         StartCoroutine(DissolveObject(3f));
     }
    IEnumerator DissolveObject(float time)

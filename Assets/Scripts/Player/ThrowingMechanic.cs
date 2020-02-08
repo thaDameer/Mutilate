@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class ThrowingMechanic : MonoBehaviour
+public class ThrowingMechanic : ArmHandler
 {
     public enum ArmState 
     {
@@ -30,6 +30,7 @@ public class ThrowingMechanic : MonoBehaviour
    
     private void Update()
     {
+        Debug.Log(haveRightArm);
         switch (armState)
         {
             case ArmState.ArmAttached:
@@ -38,7 +39,6 @@ public class ThrowingMechanic : MonoBehaviour
                 float rx = Input.GetAxis("AimHorizontal");
                 float ry = Input.GetAxis("AimVertical");
         
-
                 float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
                 transform.rotation = Quaternion.Euler(0, 0, angle);
                 if (angle == 0)
@@ -55,8 +55,6 @@ public class ThrowingMechanic : MonoBehaviour
                 {
                 if (Input.GetButtonDown("Fire2"))
                 {
-                    Debug.Log("PRESSED");
-                    
                     armClone.GetComponent<ArmScript>().armIsReturning = true;
                 }
                 }
@@ -75,6 +73,7 @@ public class ThrowingMechanic : MonoBehaviour
                 }
                 if(armClone == null)
                 {
+                    base.ToggleArm("rightArm", true);
                     projectileAmount = 1;
                     armState = ArmState.ArmAttached;
                 }
@@ -102,11 +101,11 @@ public class ThrowingMechanic : MonoBehaviour
             elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
-        Debug.Log(aimingArm.transform.localScale.y);
+        base.ToggleArm("rightArm", false);
         aimingArm.localScale = Vector3.one;
         projectileAmount -= 1;    
         armClone = Instantiate((ArmScript)armToInstantiate, transform.position, transform.rotation);
-        scaleVector = new Vector3(armClone.transform.localScale.z,armClone.transform.localScale.y + (scale-1), armClone.transform.localScale.z);
+        scaleVector = new Vector3(armClone.transform.localScale.z,scale, armClone.transform.localScale.z);
         armClone.transform.localScale = scaleVector;
         armClone.canCallBackArm = true;
         armClone.myRb.AddForce(transform.up * throwingForce, ForceMode2D.Impulse); 
@@ -137,9 +136,10 @@ public class ThrowingMechanic : MonoBehaviour
 
             break;
         }
-
+        
         // HIDE IN DETACHED STATE
 
 
     }
+    
 }
