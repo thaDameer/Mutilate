@@ -5,99 +5,141 @@ using UnityEngine;
 
 public class ThrowingMechanic : MonoBehaviour
 {
+    public enum ArmState 
+    {
+        ArmAttached,
+        ArmDetached
+    }
+    public ArmState armState;
     Vector2 aimDirection;
     public Input fireButton;
     private bool canShoot;
-    private bool armIsDetached;
-    public float throwingForce;
-    public ArmScript armToShoot;
+    [Header("Shooting Settings")]
+    public float minSpeed = 15;
+    public float maxSpeed = 45;
+    private float throwingForce;
+    [Header("Arm Settings")]
+    public Transform aimingArm;
     public GameObject armToHide;
-    //SLOW DOWN TIME EFFECTS
-    public TimeManager timeManager;
-    public CameraEffects camFX;
-    //AXE SETTINGS
-    public Rigidbody2D axe;
-    private Rigidbody2D axeClone;
-    public Transform axeSpawnPoint;
+    public ArmScript armToInstantiate;
+    public ArmScript armClone;
     public int projectileAmount = 1;
-    public float returnSpeed = 10f;
+    float scale;
+
     
    
     private void Update()
     {
-        aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
-        float rx = Input.GetAxis("AimHorizontal");
-        float ry = Input.GetAxis("AimVertical");
+        switch (armState)
+        {
+            case ArmState.ArmAttached:
+
+                aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
+                float rx = Input.GetAxis("AimHorizontal");
+                float ry = Input.GetAxis("AimVertical");
         
 
-        float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-        if (angle == 0)
-        {
-            HideAnimatedArm(false);
-        }
-        else if (angle != 0)
-        {
-            HideAnimatedArm(true);
-        }
-        if (axeClone != null && axeClone.GetComponent<ArmScript>().canCallBackArm)
-        {
-            if (Input.GetButtonDown("Fire2"))
-            {
-                Debug.Log("PRESSED");
-                
-                axeClone.GetComponent<ArmScript>().armIsReturning = true;
-            }
-        }
-        if (canShoot && Input.GetButtonDown("Fire2") && projectileAmount == 1)
-        {
-            StartCoroutine(ChargedShot(15,45));
-            /*projectileAmount -= 1;   
-            // axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.Euler(0,0, Random.Range(0,360f)));
-            axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.identity);
-            axeClone.GetComponent<ArmScript>().canCallBackArm = true;
-            //axeClone.gravityScale = 0;
-            if(rx < 0)
-            {
-                axeClone.AddTorque(-50F);
-            } else if(rx > 0)
-            {
-                axeClone.AddTorque(50f);
-            }
+                float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.Euler(0, 0, angle);
+                if (angle == 0)
+                {
+                canShoot = false;
+                HideAnimatedArm(false);
+                }
+                else if (angle != 0)
+                {
+                canShoot = true;
+                HideAnimatedArm(true);
+                }
+                if (armClone != null && armClone.canCallBackArm)
+                {
+                if (Input.GetButtonDown("Fire2"))
+                {
+                    Debug.Log("PRESSED");
+                    
+                    armClone.GetComponent<ArmScript>().armIsReturning = true;
+                }
+                }
+                if (canShoot && Input.GetButtonDown("Fire2") && projectileAmount == 1)
+                {
+                StartCoroutine(ChargedShot(minSpeed,maxSpeed));
+                } 
+            break;
 
-            axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);*/
-        } 
+            case ArmState.ArmDetached:
+                HideAnimatedArm(true);
+                if (Input.GetButtonDown("Fire2"))
+                {
+                    
+                    armClone.GetComponent<ArmScript>().armIsReturning = true;
+                }
+                if(armClone == null)
+                {
+                    projectileAmount = 1;
+                    armState = ArmState.ArmAttached;
+                }
+
+            break;
+
+
+        }
         
     }
 
     IEnumerator ChargedShot(float startForce, float endForce)
     {
-
+        
         float elapsed = 0;
         float duration = 2f;
+        Vector3 scaleVector;
+        
         while(elapsed < duration && Input.GetButton("Fire2"))
         {
             throwingForce = Mathf.SmoothStep(startForce, endForce,elapsed);
-            //Debug.Log(throwingForce);
-            Debug.Log(elapsed);
+            scale = Mathf.SmoothStep(1, 1.8f, elapsed);
+            scaleVector = new Vector3(aimingArm.localScale.x, scale, aimingArm.localScale.z);
+            aimingArm.transform.localScale = scaleVector;
             elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
+        Debug.Log(aimingArm.transform.localScale.y);
+        aimingArm.localScale = Vector3.one;
         projectileAmount -= 1;    
-        axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.identity);
-        axeClone.GetComponent<ArmScript>().canCallBackArm = true;
-        axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);
+        armClone = Instantiate((ArmScript)armToInstantiate, transform.position, transform.rotation);
+        scaleVector = new Vector3(armClone.transform.localScale.z,armClone.transform.localScale.y + (scale-1), armClone.transform.localScale.z);
+        armClone.transform.localScale = scaleVector;
+        armClone.canCallBackArm = true;
+        armClone.myRb.AddForce(transform.up * throwingForce, ForceMode2D.Impulse); 
+        armState = ArmState.ArmDetached;
     }
     void HideAnimatedArm(bool isHidden)
     {
-        if(isHidden)
+        //Hide In Attached Arm State
+        switch (armState)
         {
+            case ArmState.ArmAttached:
+
+            if(isHidden)
+            {
             armToHide.SetActive(false);
-            armToShoot.gameObject.SetActive(true);
-        } else if(!isHidden)
-        {
+            aimingArm.gameObject.SetActive(true);
+            } 
+            else if(!isHidden)
+            {
             armToHide.SetActive(true);
-            armToShoot.gameObject.SetActive(false);
+            aimingArm.gameObject.SetActive(false);
+            }
+            break;
+
+            case ArmState.ArmDetached:
+            armToHide.gameObject.SetActive(false);
+            aimingArm.gameObject.SetActive(false);
+
+            break;
         }
+
+        // HIDE IN DETACHED STATE
+
+
     }
 }

@@ -6,7 +6,8 @@ using DG.Tweening;
 public class ArmScript : MonoBehaviour
 {
     float countdownToLayerswitch = .3f;
-    Rigidbody2D myRb;
+    [HideInInspector]
+    public Rigidbody2D myRb;
     [HideInInspector]
     public bool isReturning;
     private Quaternion armStartRot;
@@ -87,11 +88,25 @@ public class ArmScript : MonoBehaviour
         //Debug.Break();
         if (distToPlayer < maxDist)
         {
-            myRb.bodyType = RigidbodyType2D.Static;
+            
             isReturning = false;
             canCallBackArm = false;
-            player.GetComponentInChildren<ThrowingMechanic>().projectileAmount = 1;
+            //player.GetComponentInChildren<ThrowingMechanic>().projectileAmount = 1;
+            //throwingMechanic.armIsDetached = false;
             Destroy(gameObject);
+        }
+    }
+    public void TogglePhysics(bool isKinematic)
+    {
+        if(isKinematic)
+        {
+            myRb.bodyType = RigidbodyType2D.Kinematic;
+            myRb.simulated = false;
+        }
+        else if(!isKinematic)
+        {
+            myRb.bodyType = RigidbodyType2D.Dynamic;
+            myRb.simulated = true;
         }
     }
 }
