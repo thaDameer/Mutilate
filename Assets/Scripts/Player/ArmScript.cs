@@ -9,6 +9,7 @@ public class ArmScript : MonoBehaviour
     Rigidbody2D myRb;
     [HideInInspector]
     public bool isReturning;
+    private Quaternion armStartRot;
     private Transform player;
     private float returnSpeed = 10f;
     ThrowingMechanic throwingMechanic;
@@ -21,6 +22,9 @@ public class ArmScript : MonoBehaviour
     {
         myRb = GetComponent<Rigidbody2D>();
         player = GameObject.Find("Player").transform;
+    }
+    private void Start() {
+        armStartRot = gameObject.transform.rotation;
     }
     private void Update()
     {
@@ -37,6 +41,19 @@ public class ArmScript : MonoBehaviour
             }
             
         }
+    }
+    
+    IEnumerator DelayRigidBody(float time)
+    {
+        float elapsed = 0;
+        float duration = time;
+        while(elapsed < duration)
+        {
+
+            elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
+            yield return new WaitForEndOfFrame();
+        }
+        myRb.bodyType = RigidbodyType2D.Dynamic;
     }
 
 
@@ -70,7 +87,7 @@ public class ArmScript : MonoBehaviour
         //Debug.Break();
         if (distToPlayer < maxDist)
         {
-            
+            myRb.bodyType = RigidbodyType2D.Static;
             isReturning = false;
             canCallBackArm = false;
             player.GetComponentInChildren<ThrowingMechanic>().projectileAmount = 1;

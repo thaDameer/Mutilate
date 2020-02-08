@@ -6,9 +6,12 @@ using UnityEngine;
 public class ThrowingMechanic : MonoBehaviour
 {
     Vector2 aimDirection;
-    public static ThrowingMechanic instance;
+    public Input fireButton;
+    private bool canShoot;
+    private bool armIsDetached;
     public float throwingForce;
-    public GameObject armObj;
+    public ArmScript armToShoot;
+    public GameObject armToHide;
     //SLOW DOWN TIME EFFECTS
     public TimeManager timeManager;
     public CameraEffects camFX;
@@ -19,10 +22,7 @@ public class ThrowingMechanic : MonoBehaviour
     public int projectileAmount = 1;
     public float returnSpeed = 10f;
     
-    private void Awake() {
-        instance = this;
-    }
-
+   
     private void Update()
     {
         aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
@@ -32,26 +32,27 @@ public class ThrowingMechanic : MonoBehaviour
 
         float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
-        if (!LeftTrigger())
+        if (angle == 0)
         {
-            armObj.SetActive(false);
-           
+            HideAnimatedArm(false);
         }
-        else if (LeftTrigger())
+        else if (angle != 0)
         {
-            armObj.SetActive(true);
-           
+            HideAnimatedArm(true);
         }
         if (axeClone != null && axeClone.GetComponent<ArmScript>().canCallBackArm)
         {
             if (Input.GetButtonDown("Fire2"))
             {
+                Debug.Log("PRESSED");
+                
                 axeClone.GetComponent<ArmScript>().armIsReturning = true;
             }
         }
-        if (LeftTrigger() && Input.GetButtonDown("Fire2") && projectileAmount == 1)
+        if (canShoot && Input.GetButtonDown("Fire2") && projectileAmount == 1)
         {
-            projectileAmount -= 1;   
+            StartCoroutine(ChargedShot(15,45));
+            /*projectileAmount -= 1;   
             // axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.Euler(0,0, Random.Range(0,360f)));
             axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.identity);
             axeClone.GetComponent<ArmScript>().canCallBackArm = true;
@@ -64,25 +65,39 @@ public class ThrowingMechanic : MonoBehaviour
                 axeClone.AddTorque(50f);
             }
 
-            axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);
-        }
+            axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);*/
+        } 
         
     }
 
-    public bool LeftTrigger()
+    IEnumerator ChargedShot(float startForce, float endForce)
     {
-        if(Input.GetAxisRaw("LeftTrigger") > 0)
-        {
-           // camFX.FadeInVignette();
-           // timeManager.DoSlowMotion();
-            return true;      
-        } else 
-        {
-          //  camFX.FadeOutVignette();
-           // timeManager.DoRealTime();
-            return false;
-        }    
-    }
 
-   
+        float elapsed = 0;
+        float duration = 2f;
+        while(elapsed < duration && Input.GetButton("Fire2"))
+        {
+            throwingForce = Mathf.SmoothStep(startForce, endForce,elapsed);
+            //Debug.Log(throwingForce);
+            Debug.Log(elapsed);
+            elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
+            yield return new WaitForEndOfFrame();
+        }
+        projectileAmount -= 1;    
+        axeClone = Instantiate(axe, axeSpawnPoint.position, Quaternion.identity);
+        axeClone.GetComponent<ArmScript>().canCallBackArm = true;
+        axeClone.AddForce(transform.up * throwingForce,ForceMode2D.Impulse);
+    }
+    void HideAnimatedArm(bool isHidden)
+    {
+        if(isHidden)
+        {
+            armToHide.SetActive(false);
+            armToShoot.gameObject.SetActive(true);
+        } else if(!isHidden)
+        {
+            armToHide.SetActive(true);
+            armToShoot.gameObject.SetActive(false);
+        }
+    }
 }

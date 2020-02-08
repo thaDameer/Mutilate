@@ -9,7 +9,7 @@ public class ScaleTest : MonoBehaviour
     public float value;
     private void Start() {
         startScale = new Vector3(transform.localScale.x, transform.localScale.y, transform.localScale.z);
-        value = startScale.y;
+        
     }
     private void Update() 
     {
@@ -26,7 +26,7 @@ public class ScaleTest : MonoBehaviour
      
         var newScale = new Vector3(transform.localScale.x,  transform.localScale.y + value, transform.localScale.z);
         transform.localScale = newScale;
-        transform.position += new Vector3(0,newScale.y *0.25f);
+        
      
         isUpdated = false;
     }

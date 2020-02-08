@@ -12,7 +12,6 @@ public class CharacterController : MonoBehaviour
     }
 
     public CharacterStates characterStates;
-
     //MOVEMENT
     [Header("Movement Variables")]
     public float moveSpeed = 10f;
@@ -52,6 +51,18 @@ public class CharacterController : MonoBehaviour
     private void Start() {
         standardMat = body.material;
     }
+    public float MovementSpeed()
+    {
+        if(characterStates == CharacterStates.Jumping)
+        {
+            var speed = moveSpeed;
+            speed = Mathf.Lerp(moveSpeed, 10, 2f * Time.deltaTime);
+            return 10;
+        } else
+        {
+            return moveSpeed;
+        }
+    }
 
     void Update()
     {
@@ -61,10 +72,6 @@ public class CharacterController : MonoBehaviour
         RotateCharacter();
         moveInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
-        if(Input.GetKeyDown(KeyCode.B))
-        {
-            StartCoroutine(CameraScript.instance.CameraShake(0.5f,0.5f));
-        }
 
         if(Input.GetButtonDown("Fire1") && jumpCount < 1)
         {
@@ -118,9 +125,11 @@ public class CharacterController : MonoBehaviour
                 break;
             case CharacterStates.Running:
                 myRb.velocity = new Vector2(moveInput * moveSpeed, myRb.velocity.y);
+                //myRb.velocity = new Vector2(moveInput * MovementSpeed(), myRb.velocity.y);
                 break;
             case CharacterStates.Jumping:
                 myRb.velocity = new Vector2(moveInput * moveSpeed, myRb.velocity.y);
+                 //myRb.velocity = new Vector2(moveInput * MovementSpeed(), myRb.velocity.y);
                 break;
         }
         
@@ -143,6 +152,7 @@ public class CharacterController : MonoBehaviour
 
     IEnumerator Jump()
     {
+        characterStates = CharacterStates.Jumping;
         jumpCount++;
         if(jumpCount > 0 && !IsGrounded())
         {
@@ -152,28 +162,30 @@ public class CharacterController : MonoBehaviour
         
         myRb.velocity = Vector2.zero;
         float timer = 0; 
-        var downForce = new Vector2(0, -15);
+        var storedSpeed = this.moveSpeed;
         while(Input.GetButton("Fire1") && timer < jumpTime)
         {
             animator.SetBool("isJumping", true);
             myRb.gravityScale = 1;
             float jumpPercent = timer/ jumpTime;
             Vector2 thisJumpVector = Vector2.Lerp(jumpVector, Vector2.zero,jumpPercent);
+            moveSpeed = Mathf.Lerp(moveSpeed, 12f, jumpPercent);
             float thisForce = Mathf.Lerp(jumpForce, 0, jumpPercent);
            // thisJumpVector.x = myRb.velocity.x;
-           myRb.AddForce(Vector2.up * thisForce, ForceMode2D.Force);
+            myRb.AddForce(Vector2.up * thisForce, ForceMode2D.Force);
             
             //myRb.velocity = thisJumpVector;
             myRb.velocity = new Vector2(myRb.velocity.x, thisForce);
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
-        
+        moveSpeed = storedSpeed;
         myRb.gravityScale = gravForce;
         animator.SetBool("isJumping", false);
-        
         isJumping = false;
+        characterStates = CharacterStates.Running;
     }
+   
 
     public bool IsGrounded()
     {
@@ -189,8 +201,6 @@ public class CharacterController : MonoBehaviour
            isGrounded = false;
            return false;
        } 
-           
-           
     }
  
 }
