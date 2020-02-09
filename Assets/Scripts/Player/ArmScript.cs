@@ -23,8 +23,10 @@ public class ArmScript : MonoBehaviour
     public BoxCollider2D triggerCol;
     public bool canCallBackArm = false;
     public bool armIsReturning = false;
-
-
+    public LayerMask enemyLayer;
+    public float maxDetectionRadius;
+    Collider2D[] colliderResult = new Collider2D[10];
+    ContactFilter2D enemy;
 
     private void Awake()
     {
@@ -44,6 +46,7 @@ public class ArmScript : MonoBehaviour
     }
     private void Update()
     {
+        
         if(armBehaviour == ArmBehaviour.recall)
         {
         countdownToLayerswitch -= Time.deltaTime;
@@ -77,6 +80,22 @@ public class ArmScript : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         Debug.Log(triggerCol.name);
+        triggerCol.isTrigger = true;
+    }
+
+    IEnumerator HitSlowmotion(float time, float timeScale)
+    {
+        float scale = timeScale;
+        float elapsed = 0;
+        float duration = time;
+        while(elapsed < duration)
+        {
+            Time.timeScale = scale;
+            Time.fixedDeltaTime = Time.timeScale * 0.02f;
+            elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
+            yield return new WaitForEndOfFrame();
+        }
+        Time.timeScale = 1;
         triggerCol.isTrigger = true;
     }
 
@@ -114,20 +133,38 @@ public class ArmScript : MonoBehaviour
             
             isReturning = false;
             canCallBackArm = false;
-            //player.GetComponentInChildren<ThrowingMechanic>().projectileAmount = 1;
-            //throwingMechanic.armIsDetached = false;
             Destroy(gameObject);
         }
     }
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        Debug.Log("HIT");
+        
         if(other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             isReturning = false;
             canCallBackArm = false;
             Destroy(gameObject);
-        }        
+        }
+       
     }
-
+    private void OnCollisionEnter2D(Collision2D other) 
+    {
+        if(other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            StartCoroutine(HitSlowmotion(0.5f, 0.4f));
+        }    
+    }
+/*
+        public void CheckForEnemyInRange()
+        {   
+            ContactFilter2D cont; 
+            if(Physics2D.CircleCast(transform.position,5,transform.forward,0,enemyLayer))
+            {
+                
+            }
+            else
+            {
+            
+            }
+        }*/
 }

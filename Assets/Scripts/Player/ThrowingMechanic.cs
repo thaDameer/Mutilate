@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class ThrowingMechanic : ArmHandler
 {
+    public enum Arms
+    {
+        right,
+        left
+    }
+    public Arms arms;
     public enum ArmState 
     {
         ArmAttached,
-        ArmDetached
+        ArmDetached,
+        ArmIsDeactive
     }
     public ArmState armState;
     Vector2 aimDirection;
@@ -26,30 +33,29 @@ public class ThrowingMechanic : ArmHandler
     public ArmScript armClone;
     public int projectileAmount = 1;
     float scale;
+    public float maxScale = 1.8f;
     public bool isActive;
+    public CharacterController player;
 
-    
    
     private void Update()
     {
-        Debug.Log(haveRightArm);
-        Debug.Log(haveLeftArm);
         switch (armState)
         {
             case ArmState.ArmAttached:
-               
+               if(isActive)
+               {
                 aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
                 float rx = Input.GetAxis("AimHorizontal");
                 float ry = Input.GetAxis("AimVertical");
-        
                 float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
                 transform.rotation = Quaternion.Euler(0, 0, angle);
-                if (angle == 0)
+                if  (ry == 0 && rx == 0)
                 {
                 canShoot = false;
                 HideAnimatedArm(false);
                 }
-                else if (angle != 0)
+                else if (rx != 0 || ry != 0)
                 {
                 canShoot = true;
                 HideAnimatedArm(true);
@@ -65,6 +71,7 @@ public class ThrowingMechanic : ArmHandler
                 {
                 StartCoroutine(ChargedShot(minSpeed,maxSpeed));
                 } 
+               }
                 
             break;
 
@@ -77,8 +84,11 @@ public class ThrowingMechanic : ArmHandler
                 }
                 if(armClone == null)
                 {
-                    base.ToggleArm(whatArm.ToString(), true);
+                   
                     projectileAmount = 1;
+                    //DO ARM TOGGLE FUNCTION
+                    player.WhatArmIsActive(arms, true);
+                    HideAnimatedArm(false);
                     armState = ArmState.ArmAttached;
                 }
 
@@ -88,7 +98,6 @@ public class ThrowingMechanic : ArmHandler
 
     IEnumerator ChargedShot(float startForce, float endForce)
     {
-        
         float elapsed = 0;
         float duration = 1.5f;
         Vector3 scaleVector;
@@ -96,13 +105,13 @@ public class ThrowingMechanic : ArmHandler
         while(elapsed < duration && Input.GetButton("Fire2"))
         {
             throwingForce = Mathf.SmoothStep(startForce, endForce,elapsed);
-            scale = Mathf.SmoothStep(1, 1.8f, elapsed);
+            scale = Mathf.SmoothStep(1, maxScale, elapsed);
             scaleVector = new Vector3(aimingArm.localScale.x, scale, aimingArm.localScale.z);
             aimingArm.transform.localScale = scaleVector;
             elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
-        base.ToggleArm(whatArm.ToString(), false);
+       
         aimingArm.localScale = Vector3.one;
         projectileAmount -= 1;    
         armClone = Instantiate((ArmScript)armToInstantiate, transform.position, transform.rotation);
@@ -111,8 +120,9 @@ public class ThrowingMechanic : ArmHandler
         armClone.canCallBackArm = true;
         armClone.myRb.AddForce(transform.up * throwingForce, ForceMode2D.Impulse); 
         armState = ArmState.ArmDetached;
+        player.WhatArmIsActive(arms, false);
     }
-    void HideAnimatedArm(bool isHidden)
+    public void HideAnimatedArm(bool isHidden)
     {
         //Hide In Attached Arm State
         switch (armState)
@@ -136,11 +146,7 @@ public class ThrowingMechanic : ArmHandler
             aimingArm.gameObject.SetActive(false);
 
             break;
-        }
-        
+        }  
         // HIDE IN DETACHED STATE
-
-
     }
-    
 }

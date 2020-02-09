@@ -7,6 +7,7 @@ public class ShaderOnHitTest : MonoBehaviour
    public Material shader;
    string dissolveAmount;
    float disolveValue = 1;
+   public float health = 2;
 
    private void Start() {
        shader.SetFloat("dissolveAmount", 1);
@@ -15,10 +16,11 @@ public class ShaderOnHitTest : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D other) 
     {
 //        StartCoroutine(CameraScript.instance.CameraShake(0.5f, 0.5f));
-        StartCoroutine(DissolveObject(3f));
+        StartCoroutine(DissolveObject(3f, gameObject.GetComponent<MeshRenderer>().material));
     }
-   IEnumerator DissolveObject(float time)
+   IEnumerator DissolveObject(float time, Material mat)
    {
+       health -= 1;
        float elapsed = 0;
        float duration = time;
        float fadevalue;
@@ -26,9 +28,9 @@ public class ShaderOnHitTest : MonoBehaviour
        {
            fadevalue = Mathf.Lerp(disolveValue, 0, elapsed);
            elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
-           shader.SetFloat("dissolveAmount", fadevalue);
+           mat.SetFloat("dissolveAmount", fadevalue);
            yield return new WaitForEndOfFrame();
        }
-       shader.SetFloat("dissolveAmount", 0);
+       mat.SetFloat("dissolveAmount", 0);
    }
 }

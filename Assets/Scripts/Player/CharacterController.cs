@@ -32,10 +32,12 @@ public class CharacterController : MonoBehaviour
     public Material bodyDepleted;
     public Renderer body;
     Material standardMat;
-
     public Transform footPos;
-
     public Transform characterModel;
+    public ThrowingMechanic leftArm, rightArm;
+    public bool leftArmIsActive, rightArmIsActive;
+
+    public int armCount = 0;
 
     //RIGIDBODY
     private Rigidbody2D myRb;
@@ -51,6 +53,9 @@ public class CharacterController : MonoBehaviour
 
     private void Start() {
         standardMat = body.material;
+        rightArm.isActive = true;
+        rightArmIsActive = rightArm.isActive;
+        leftArm.aimingArm.gameObject.SetActive(false);
     }
     public float MovementSpeed()
     {
@@ -67,6 +72,8 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
+        //TEST!!
+        ArmActive();
         isGrounded = Physics2D.OverlapCircle(footPos.position, checkRadius, whatIsGround);
         jumpVector.y = jumpForce;
         RotateCharacter();
@@ -176,10 +183,11 @@ public class CharacterController : MonoBehaviour
             moveSpeed = Mathf.Lerp(moveSpeed, 12f, jumpPercent);
             float thisForce = Mathf.Lerp(jumpForce, 0, jumpPercent);
            // thisJumpVector.x = myRb.velocity.x;
-            myRb.AddForce(Vector2.up * thisForce, ForceMode2D.Force);
+            //myRb.AddForce(Vector2.up * thisForce, ForceMode2D.Force);
             
             //myRb.velocity = thisJumpVector;
             myRb.velocity = Vector2.up * thisForce;
+            //myRb.AddForce(Vector2.up * thisForce);
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
@@ -189,5 +197,41 @@ public class CharacterController : MonoBehaviour
         isJumping = false;
        
         characterStates = CharacterStates.Running;
+    }
+    public void WhatArmIsActive(ThrowingMechanic.Arms whatArm, bool active)
+    {
+        if(whatArm.ToString() == "right" && active)
+        {
+            leftArm.isActive = false;
+            rightArm.isActive = true;
+            
+        } 
+        else if(whatArm.ToString() == "right" && !active)
+        {
+            rightArm.isActive = false;
+            leftArm.isActive = true;
+        }
+        else if(whatArm.ToString() == "left" && active)
+        {
+            leftArm.isActive = true;
+        } 
+        else if(whatArm.ToString() == "left" && !active)
+        {
+            rightArm.isActive = false;
+            leftArm.isActive = false;
+        }
+        leftArmIsActive = leftArm.isActive;
+        rightArmIsActive = rightArm.isActive;
+        if(leftArmIsActive && rightArmIsActive)
+        {
+            leftArm.isActive = false;
+            rightArm.isActive = true;
+        }
+        
+    }
+    void ArmActive()
+    {
+        leftArmIsActive = leftArm.isActive;
+        rightArmIsActive = rightArm.isActive;
     }
 }
