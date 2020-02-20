@@ -11,6 +11,7 @@ public class ThrowingMechanic : ArmHandler
         left
     }
     public Arms arms;
+    
     public enum ArmState 
     {
         ArmAttached,
@@ -21,7 +22,7 @@ public class ThrowingMechanic : ArmHandler
     Vector2 aimDirection;
     public Input fireButton;
     public bool armIsDetactivated;
-    private bool canShoot;
+    public bool canShoot;
     [Header("Shooting Settings")]
     public float minSpeed = 15;
     public float maxSpeed = 45;
@@ -43,35 +44,35 @@ public class ThrowingMechanic : ArmHandler
         switch (armState)
         {
             case ArmState.ArmAttached:
-               if(isActive)
-               {
-                aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
-                float rx = Input.GetAxis("AimHorizontal");
-                float ry = Input.GetAxis("AimVertical");
-                float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
-                transform.rotation = Quaternion.Euler(0, 0, angle);
-                if  (ry == 0 && rx == 0)
+              
+                if(isActive)
                 {
-                canShoot = false;
-                HideAnimatedArm(false);
-                }
-                else if (rx != 0 || ry != 0)
-                {
-                canShoot = true;
-                HideAnimatedArm(true);
-                }
-                if (armClone != null && armClone.canCallBackArm)
-                {
-                if (Input.GetButtonDown("Fire2"))
-                {
-                    armClone.GetComponent<ArmScript>().armIsReturning = true;
-                }
-                }
-                if (canShoot && Input.GetButtonDown("Fire2") && projectileAmount == 1)
-                {
-                StartCoroutine(ChargedShot(minSpeed,maxSpeed));
+                    aimDirection = new Vector3(Input.GetAxisRaw("AimHorizontal"), Input.GetAxisRaw("AimVertical"),0);
+                    float rx = Input.GetAxis("AimHorizontal");
+                    float ry = Input.GetAxis("AimVertical");
+                    float angle = Mathf.Atan2(rx, ry) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.Euler(0, 0, angle);
+                    if  (ry == 0 && rx == 0 )
+                    {
+                        canShoot = false;
+                        HideAnimatedArm(false);
+                    }
+                    else if (rx != 0 || ry != 0)
+                    {
+                        canShoot = true;
+                        HideAnimatedArm(true);
+                    }
+            
+                    if (canShoot && Input.GetButtonDown("Fire2") && projectileAmount == 1)
+                    {
+                        StartCoroutine(ChargedShot(minSpeed,maxSpeed));
+                    } 
                 } 
-               }
+                else if(!isActive)
+                {
+                    HideAnimatedArm(false);
+                }
+               
                 
             break;
 
@@ -79,16 +80,15 @@ public class ThrowingMechanic : ArmHandler
                 HideAnimatedArm(true);
                 if (Input.GetButtonDown("Fire2"))
                 {
-                    
                     armClone.GetComponent<ArmScript>().armIsReturning = true;
                 }
                 if(armClone == null)
                 {
-                   
                     projectileAmount = 1;
                     //DO ARM TOGGLE FUNCTION
+                    canShoot = false;
                     player.WhatArmIsActive(arms, true);
-                    HideAnimatedArm(false);
+                    //HideAnimatedArm(false);
                     armState = ArmState.ArmAttached;
                 }
 
@@ -117,7 +117,6 @@ public class ThrowingMechanic : ArmHandler
         armClone = Instantiate((ArmScript)armToInstantiate, transform.position, transform.rotation);
         scaleVector = new Vector3(armClone.transform.localScale.z,scale, armClone.transform.localScale.z);
         armClone.transform.localScale = scaleVector;
-        armClone.canCallBackArm = true;
         armClone.myRb.AddForce(transform.up * throwingForce, ForceMode2D.Impulse); 
         armState = ArmState.ArmDetached;
         player.WhatArmIsActive(arms, false);

@@ -59,7 +59,7 @@ MonoBehaviour:
   checkRadius: 1
   isGrounded: 0
   isJumping: 1
-  gravForce: 5
+  gravForce: 8
   bodyDepleted: {fileID: 2100000, guid: 2c15643f01299b34c9f8954bb7db9e99, type: 2}
   body: {fileID: 3972090772837823696}
   footPos: {fileID: 4174118318394006392}
@@ -194,6 +194,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: rightArm
       objectReference: {fileID: 0}
+    - target: {fileID: 1378613124885519702, guid: 8b3e955b4956d434e99f672deb7d997e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3473c0aaa0692394f8ef2ecb18f92c5e, type: 2}
     - target: {fileID: 2667276602638568005, guid: 8b3e955b4956d434e99f672deb7d997e,
         type: 3}
       propertyPath: m_Name
@@ -269,6 +274,12 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 4174118318366781719}
+    - target: {fileID: 4817854146067001853, guid: 8b3e955b4956d434e99f672deb7d997e,
+        type: 3}
+      propertyPath: armToInstantiate
+      value: 
+      objectReference: {fileID: 3136100350929111667, guid: afa912b57d9f2084dadeb9f3626a1f24,
+        type: 3}
     - target: {fileID: 4940271118914534272, guid: 8b3e955b4956d434e99f672deb7d997e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -299,6 +310,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7575269933889938406, guid: 8b3e955b4956d434e99f672deb7d997e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3473c0aaa0692394f8ef2ecb18f92c5e, type: 2}
+    - target: {fileID: 7703637768722808143, guid: 8b3e955b4956d434e99f672deb7d997e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3473c0aaa0692394f8ef2ecb18f92c5e, type: 2}
     - target: {fileID: 8694222510846859488, guid: 8b3e955b4956d434e99f672deb7d997e,
         type: 3}
       propertyPath: m_Name

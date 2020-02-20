@@ -31,7 +31,7 @@ public class ArmScript : MonoBehaviour
     private void Awake()
     {
         myRb = GetComponent<Rigidbody2D>();
-        player = GameObject.Find("Player").transform;
+//        player = GameObject.Find("Player").transform;
     }
     private void OnEnable() 
     {
@@ -40,46 +40,26 @@ public class ArmScript : MonoBehaviour
            // TriggerDelay(1f);
         }    
     }
-    private void Start() {
-        armStartRot = gameObject.transform.rotation;
-        StartCoroutine(TriggerDelay(1f));
-    }
-    private void Update()
+    private void Start() 
     {
-        
-        if(armBehaviour == ArmBehaviour.recall)
-        {
-        countdownToLayerswitch -= Time.deltaTime;
-        if(countdownToLayerswitch <= 0)
-        {
-            gameObject.layer = LayerMask.NameToLayer("Axe");
-        }
-        if (canCallBackArm)
-        {
-            if (armIsReturning)
-            {
-                RecallAxe(15f, 1f);
-            }
-            
-        }
-        if(armBehaviour == ArmBehaviour.pickup)
-        {
-            triggerCol.gameObject.SetActive(true);
-        }
-        }
+        armStartRot = gameObject.transform.rotation;
+        triggerCol.gameObject.SetActive(true);
+        StartCoroutine(TriggerDelayAndShrinkBack(1f));
     }
     
-    IEnumerator TriggerDelay(float time)
+    IEnumerator TriggerDelayAndShrinkBack(float time)
     {
-
         float elapsed = 0;
         float duration = time;
+        Vector3 prevScale = gameObject.transform.localScale;
+        
         while(elapsed < duration)
         {
+            //SHRINKS ARM BACK TO START SIZE
+            gameObject.transform.localScale = Vector3.Lerp(prevScale, Vector3.one,elapsed);
             elapsed = Mathf.Min(duration, elapsed + Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
-        Debug.Log(triggerCol.name);
         triggerCol.isTrigger = true;
     }
 

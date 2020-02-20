@@ -1332,24 +1332,13 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 407818288173482618, guid: e78973e41f511dd4ba8e0907c7cedc7d,
         type: 3}
-      propertyPath: armToInstantiate
-      value: 
-      objectReference: {fileID: 3136100350929111667, guid: afa912b57d9f2084dadeb9f3626a1f24,
-        type: 3}
-    - target: {fileID: 3286635966202842824, guid: e78973e41f511dd4ba8e0907c7cedc7d,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 3473c0aaa0692394f8ef2ecb18f92c5e, type: 2}
-    - target: {fileID: 3338411549394899041, guid: e78973e41f511dd4ba8e0907c7cedc7d,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 3473c0aaa0692394f8ef2ecb18f92c5e, type: 2}
+      propertyPath: maxScale
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4174118318366781707, guid: e78973e41f511dd4ba8e0907c7cedc7d,
         type: 3}
       propertyPath: m_Name
-      value: Player
+      value: Player1
       objectReference: {fileID: 0}
     - target: {fileID: 4174118318366781717, guid: e78973e41f511dd4ba8e0907c7cedc7d,
         type: 3}
@@ -1406,16 +1395,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4174118318366781719, guid: e78973e41f511dd4ba8e0907c7cedc7d,
+    - target: {fileID: 5148925280424565561, guid: e78973e41f511dd4ba8e0907c7cedc7d,
         type: 3}
-      propertyPath: gravForce
-      value: 8
+      propertyPath: maxScale
+      value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 6076896409413775057, guid: e78973e41f511dd4ba8e0907c7cedc7d,
-        type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 3473c0aaa0692394f8ef2ecb18f92c5e, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e78973e41f511dd4ba8e0907c7cedc7d, type: 3}
 --- !u!1001 &6185763196496151463
